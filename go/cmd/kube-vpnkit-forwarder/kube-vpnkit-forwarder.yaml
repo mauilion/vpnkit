@@ -33,12 +33,22 @@ metadata:
   name: kube-vpnkit-forwarder
   namespace: kube-system
 spec:
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  tolerations:
+    - key: node-role.kubernetes.io/master
+      effect: NoSchedule
   serviceAccountName: kube-vpnkit-forwarder
   containers:
     - name: kube-vpnkit-forwarder
-      image: vpnkit/kube-vpnkit-forwarder:latest
+      image: mauilion/kube-vpnkit-forwarder:latest
       command: ["/kube-vpnkit-forwarder", "-path", "/run/host-services/backend.sock"]
-      imagePullPolicy: IfNotPresent
+      env:
+        - name: hostIP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+      imagePullPolicy: Always
       volumeMounts:
         - mountPath: /run/host-services/backend.sock
           name: api

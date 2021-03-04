@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os"
 
 	"github.com/moby/vpnkit/go/pkg/vpnkit"
 	"github.com/pkg/errors"
@@ -187,10 +188,11 @@ func convert(service *v1.Service, servicePort v1.ServicePort) (*vpnkit.Port, err
 	case v1.ServiceTypeLoadBalancer:
 		return &vpnkit.Port{
 			Proto:      protocol,
-			OutIP:      net.ParseIP("0.0.0.0"),
+            OutIP:      net.ParseIP("127.0.0.1"),
 			OutPort:    uint16(servicePort.Port),
-			InIP:       net.ParseIP(service.Spec.ClusterIP),
-			InPort:     uint16(servicePort.Port),
+//			InIP:       net.ParseIP(service.Spec.ClusterIP),
+			InIP:       net.ParseIP(os.Getenv("hostIP")),
+			InPort:     uint16(servicePort.NodePort),
 			Annotation: annotation,
 		}, nil
 	case v1.ServiceTypeNodePort:
